@@ -1,22 +1,31 @@
-# bank-api v0.0.1
+# bank-api v0.0.2
 ***Attempt at setting up some simple bank account api's***
 
 Can be accessed on Heroku here:  https://bank-api-prod.herokuapp.com/api
 
-Uses arrays for a database.  Data model is not really separated appropriately.  The term "NOTE:"" is used in the code to indicate some outstanding questions.  Not really sure about the scope of variables used here.  In coding, it appeared that all variables might be global.  
+Version 0.0.2 uses SQLite for the database as opposed to arrays and Dictionaries used in version 0.0.2.  The term "NOTE:"" is used in the code to indicate some outstanding questions.  Not really sure about the scope of variables used here.  In coding, it appeared that all variables might be global.  
 
 ### References
 *Markdown Cheatsheet:* https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet  
 *Restful API Tutorial:* https://blog.miguelgrinberg.com/post/designing-a-restful-api-with-python-and-flask  
-*Flask set-up Tutorial:* https://realpython.com/blog/python/flask-by-example-part-1-project-setup/    
-*Model used for application:* https://github.com/afh/yabab  
+*Flask set-up Tutorial:* https://realpython.com/blog/python/flask-by-example-part-1-project-setup/   
+*Test Driven Development:* https://github.com/mjhea0/flaskr-tdd   
+*Original template from which this was derived* https://github.com/afh/yabab  
 *Heroku Tutorial:* http://readwrite.com/2014/09/23/heroku-for-beginners-app-hosting-101/  
-*Heroku:* https://dashboard.heroku.com/apps/newbank-api/deploy/heroku-git  
+*Heroku:* https://dashboard.heroku.com/apps/prod-bank-api/deploy/heroku-git  
 *API Documentation:*  https://bocoup.com/weblog/documenting-your-api  
-*POSTMAN:* https://www.getpostman.com/  
+  
 
 *not bad reference but no directly used:*  
-https://code.tutsplus.com/tutorials/creating-a-web-app-from-scratch-using-python-flask-and-mysql--cms-22972  
+https://code.tutsplus.com/tutorials/creating-a-web-app-from-scratch-using-python-flask-and-mysql--cms-22972 
+*Setup Sublime Text for Python:*  https://realpython.com/blog/python/setting-up-sublime-text-3-for-full-stack-python-development/   
+*Python OOP Article:*  https://jeffknupp.com/blog/2014/06/18/improve-your-python-python-classes-and-object-oriented-programming/  
+*PEP8:*  https://www.python.org/dev/peps/pep-0008/#function-names  
+*Flask Tutorial:*  http://flask.pocoo.org/docs/0.11/tutorial/  
+*How to Use CURL:*  https://curl.haxx.se/docs/manpage.html 
+*Getting Started with CURL:*  https://www.ethanmick.com/getting-started-with-curl/   
+*POSTMAN:*  https://www.getpostman.com/
+*SQLite Manager:*  Firefox SQLite manager http://lazierthanthou.github.io/sqlite-manager/
 
 
 ### How it All Started
@@ -88,7 +97,7 @@ $ deactive'''
 
 ***Connected with Heroku to run app on cloud***    
 
-Created a new api in Heroku. Set up to deploy from GIT:  
+Created a new api in Heroku. Set up to deploy from GIT (source: https://realpython.com/blog/python/flask-by-example-part-1-project-setup/):  
 ```
 $ heroku login
     Enter your Heroku credentials.
@@ -96,19 +105,13 @@ $ heroku login
     Password (typing will be hidden): 
     Authentication successful.
     updating...done. Updated to 3.43.13
-$ heroku git:remote -a newbank-api
-    Heroku CLI submits usage information back to Heroku. If you would like to disable this, set `skip_analytics: true` in /Users/garydavis/.config/heroku/config.json
-    heroku-cli: Installing CLI... 20.78MB/20.78MB
-    set git remote heroku to https://git.heroku.com/newbank-api.git
-$
+$ heroku create stage-bank-api
+$ heroku create prod-bank-api
 ```
-
-I think this works but I stumbled a bit:  
+Add new apps to your git remotes. Making sure to name one remote pro (for “production”) and the other stage (for “staging”):
 ```
-Add your new apps to your git remotes. Make sure to name one remote pro (for “production”) and the other stage (for “staging”):
-
-$ git remote add pro git@heroku.com:YOUR_APP_NAME.git
-$ git remote add stage git@heroku.com:YOUR_APP_NAME.git
+$ git remote add prod git@heroku.com:prod-bank-api.git  
+$ git remote add stage git@heroku.com:stage-bank-api.git   
 ```
 Now we can push both of our apps live to Heroku.
 
@@ -126,7 +129,7 @@ try again git push again.
   
 If successful you should be able to see the site up on the web.  
 
-`https://bank-api-prod.herokuapp.com/api/accounts`  
+`https://prod-bank-api.herokuapp.com/api/accounts`  
 
 ### Install on local machine from GIT
 
@@ -137,6 +140,13 @@ TBD
 ```
 $ cd bank-api
 $ . venv/bin/activate  
+```
+Initialize the database
+```
+$ python db_setup.py
+```
+Run the app on localhost
+```
 $ python app.py
 ```  
 Press CTRL+C in Terminal  to terminate the server
@@ -151,22 +161,29 @@ POST /api/accounts
 GET /api/accounts/<account_number> 
 GET /api/customers  
 GET /api/customers/<customer_id> 
-POST /api/transactions  
+POST /api/transactions 
+GET /api/events   
 ```
 
 
 ### Calling the API Using CURL
 
-Calling API's using HTTP from a browers gets messy with POST. Best to install and use curl or I found POSTMAN onto Google Chrome to be quite useful.  
+See api.md for documention on the api endpoints.  Calling API's using HTTP from a browers gets messy with POST. Best to install and use curl or use the app POSTMAN in Google Chrome which is quite useful.  
 
 * set URL as environment constant:  
     ```$ export API_HOST=localhost:5000/```  
-
+  
 * List accounts:  
     `$ curl ${API_HOST}/api/api/accounts`  
-
+  
 * Transfer funds between accounts:  
-    ```$ curl -H'Content-Type: application/json' -d'{"amount":100.00, "reference":"reimbursement", "beneficiary":"48739777", "originator": "12345678"}'  ${API_HOST}/api/api/transactions```   
+    ```$ curl -H'Content-Type: application/json' -d'{"amount":100.00, "reference":"reimbursement", "beneficiary":"48739777", "originator": "12345678"}'  ${API_HOST}/api/api/transactions```  
+  
+* List events:  
+    ```curl -X GET -H "Cache-Control: no-cache" -H "Postman-Token: 45035b0b-cdcc-4769-bf43-d301e1efe9aa" "http://localhost:5000/api/events" ```  
   
 
+### Calling the API Using Postman
+
+Working with SQLite manager and Postman was helpful in the conversion from arrays and dictionaries to SQLite. Initially I used Postman to make HTML GET and POST requests but found it to be very useful to set up simple semi-automated tests for each of the endpoints.  A copy of the requests and tests is included in git (bank-api local host.postman_collection.json).  I am not sure if it easily transferable but even reading the json will give you a bit of an idea of how it was setup.
 

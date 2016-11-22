@@ -1,10 +1,8 @@
 #!flask/bin/python
-from flask import Flask, jsonify, request, url_for
-
-from api_utils import *
-from models import *
-
-app = Flask(__name__)
+import time
+from flask import Flask, jsonify, request
+import api_utils
+import db_helper
 
 """
     Bank API Backend
@@ -14,23 +12,45 @@ app = Flask(__name__)
 
     Modelled after YABAB by Alexis Hildebrandt 2016
 
-    Uses arrays for a database.  Data model is not really separated.  NOTE: is
-    used to indicate some outstanding questions.  Not really sure abou the
-    scope of variables.  In coding, it appeared that all variables might be
-    global.
+    Uses SQLITE for a database. Database and access is separated from the
+    front-end.
+
+    The term "NOTE:"" is used to indicate some outstanding questions.
 """
 
-__author__  = "Gary W Davis"
-__version__ = "0.0.1"
+__author__ = "Gary W Davis"
+__version__ = "0.0.2"
 __license__ = "MIT"
 __copyright__ = "Copyright 2016, Gary W Davis"
-__version__ = "0.0.1"
-__api_descr__ = "https://github.com/gwdavis/bank-api/blob/1fa121a9c2da77163ba88d1f939027e89f07ed71/API.md"
+__api_descr__ = "https://github.com/gwdavis/bank-api/blob/master/API.md"
 
+
+# create application
+app = Flask(__name__)
+
+
+# Set defaults and parameters
+
+# NOTE:  Could not figure out how to move the function to api_utils without
+# a circular reference that resulted in the function not being found
+
+def set_variables(dt, dc):
+    """Return an object with variable names and values in dict format.
+    Arg is db table name and column name where the variables are stored
+    in in single cell of db """
+    class Bunch(object):
+        def __init__(self, x):
+            self.__dict__.update(x)      
+    return Bunch(db_helper.get_variables(dt, dc))
+
+parms = set_variables('parms', 'var_json')
+defaults = set_variables('defaults', 'var_json')
 
 ###########################################################################
 # api_info
 ###########################################################################
+
+
 @app.route('/')
 @app.route('/api/')
 def api_info():
@@ -49,60 +69,55 @@ def api_info():
 @app.route('/api/accounts',
            methods=['POST', 'GET'],
            defaults={'account_number': None})
-@app.route('/api/accounts/<account_number>', methods=['GET'])
+@app.route('/api/accounts/<int:account_number>', methods=['GET'])
 def accounts(account_number):
     """Routes requests to `create_account()` or `show_balance()`"""
     if request.method == 'POST':
-        return create_account(get_data(request))
+        return create_account(api_utils.get_data(request))
     elif request.method == 'GET' and account_number:
-        return show_balance(account_number)
+        return show_adjusted_balance(account_number)
+
     else:
         return list_accounts()
 
 
 def list_accounts():
-    accounts = Accounts
+    accounts = db_helper.get_all_accounts()
     return jsonify({"accounts": accounts})
 
 
 def create_account(data):
-    """Creates a new account for a customer identified by customer_id.
-    Creates transaction records and new balance."""  
+    """Creates a new account and records initial deposit.
+    Args:  customer id
+            initial deposit
+    Creates transaction records and new balance."""
 
-    # NOTE - Transaction is assumed
-    # to be transfer from Treasury but does not show a transfer from cash or
-    # accounts receivable
+    # NOTE - All deposits come from treasury
+    # NOTE - To do: set initial deposit to zero if not provided.
 
     mandatory_params = ['customer_id', 'initial_deposit']
-    result = check_required_params(mandatory_params, data)
+    result = api_utils.check_required_params(mandatory_params, data)
     if result:
         return result
 
-    customer = customer_true(int(data['customer_id']))
+    customer = db_helper.customer_true(int(data['customer_id']))
     if not customer:
-        return error("No customer with id {} found".format(data['customer_id']), 404)
-    
-    new_account_id = max_account_id() + 1
-    new_account_number = str(int(max_account_number()) + 1)
+        return api_utils.error("No customer with id {} \
+            found".format(data['customer_id']), 404)
+
+    new_account = db_helper.add_new_account(int(data['initial_deposit']),
+                                            customer['customer_id'],
+                                            u'dda')
     initial_deposit = int(data['initial_deposit'])
-    new_account = {
-        'customer_id': customer['customer_id'],
-        'customer': customer['customer'],
-        'account_id': new_account_id,
-        'account_number': new_account_number,
-        'type': u'dda',
-        'balance': 0,
-        'active': True
-        }
-    (amount, reject) = numeric_amount('initial_deposit', data)
+
+    (amount, reject) = api_utils.numeric_amount('initial_deposit', data)
     if reject:
         return reject
 
-    Accounts.append(new_account)
-    beneficiary = search_account(new_account_number)
-    originator = search_account(u'12345678')
+    beneficiary = db_helper.get_account(new_account['account_number'])
+    originator = db_helper.get_account(12345678)
 
-    committed_transaction = commit_transaction(
+    committed_transaction = api_utils.commit_transaction(
         originator=originator,
         beneficiary=beneficiary,
         reference="Initial Deposit",
@@ -112,14 +127,32 @@ def create_account(data):
                     "new account": new_account}), 201
 
 
-def show_balance(account_number):
-    """Show the current balance of an account identified by account_number"""
-    account = search_account(account_number)
+def show_adjusted_balance(account_number):
+    """Finds latest balance and adjusts for accrued interest rate"""
+    account = db_helper.get_account(account_number)
     if not account:
-        return error("No account with number {} found".format(account_number), 404)
+        return api_utils.error("No account with number {} found".format(account_number), 404)
 
-    balance = account['balance']
-    return jsonify({"balance": balance})
+    if account['account_type'] == 'savings':
+        balance = api_utils.calc_pv(account['balance'],
+                                    account['last_event_time'],
+                                    time.time(),
+                                    param.savings_rate)
+        return jsonify({"balance": balance})
+
+    return jsonify({"balance": account['balance']})
+
+##########################################################################
+# /events
+##########################################################################
+
+
+@app.route('/api/events',
+           methods=['GET'])
+def list_events():
+    """List of all events"""
+    events = db_helper.get_all_events()
+    return jsonify({"events": events})
 
 ##########################################################################
 # /transactions
@@ -132,25 +165,25 @@ def create_transaction():
     For every request to this API endpoint two Transaction database entries
     are made in order to have some sort of double entry bookkeeping.
     """
-    data = get_data(request)
+    data = api_utils.get_data(request)
     mandatory_params = ['amount', 'reference', 'originator', 'beneficiary']
-    result = check_required_params(mandatory_params, data)
+    result = api_utils.check_required_params(mandatory_params, data)
     if result:
         return result
 
-    (originator, reject) = get_account('originator', data)
+    (originator, reject) = api_utils.get_designated_account('originator', data)
     if reject:
         return reject
 
-    (beneficiary, reject) = get_account('beneficiary', data)
+    (beneficiary, reject) = api_utils.get_designated_account('beneficiary', data)
     if reject:
         return reject
 
-    (amount, reject) = numeric_amount('amount', data)
+    (amount, reject) = api_utils.numeric_amount('amount', data)
     if reject:
         return reject
 
-    committed_transaction = commit_transaction(
+    committed_transaction = api_utils.commit_transaction(
         originator=originator,
         beneficiary=beneficiary,
         reference=data['reference'],
@@ -171,7 +204,7 @@ def create_transaction():
 def customers(customer_id):
     """Routes requests to `create_customer()` or `show_customer_accounts()`"""
     if request.method == 'POST':
-        return create_customer(get_data(request))
+        return api_utils.create_customer(api_utils.get_data(request))
     elif request.method == 'GET' and customer_id:
         return show_customer_accounts(customer_id)
     else:
@@ -180,16 +213,17 @@ def customers(customer_id):
 
 def list_customers():
     """List of all customers and customer_id"""
-    customers = Customers
+    customers = db_helper.get_all_customers()
 
-    return jsonify({"accounts": customers})
+    return jsonify({"customers": customers})
 
 
 def show_customer_accounts(customer_id):
     """Show a list of accounts for requested customer_ID"""
-    customer_accounts = search_customer_accounts(customer_id)
+    customer_accounts = db_helper.get_customer_accounts(customer_id)
     if not customer_accounts:
-        return error("No accounts for customer with id number {} found".format(customer_id), 404)
+        return api_utils.error("No accounts for customer with id \
+                               number {} found".format(customer_id), 404)
     else:
         return jsonify({"accounts": customer_accounts})
 
@@ -197,17 +231,17 @@ def show_customer_accounts(customer_id):
 def create_customer(data):
     """Creates a new customer for a customer name and mobile number"""
     mandatory_params = ['customer_name', 'mobile_number']
-    result = check_required_params(mandatory_params, data)
+    result = api_utils.check_required_params(mandatory_params, data)
     if result:
         return result
-    mobile_number = mobile_number_unique(data['mobile_number'])
+    mobile_number = db_helper.mobile_number_unique(data['mobile_number'])
     if not mobile_number:
-        return error("There already is a customer with mobile number {} found".format(data['mobile_number']), 404)
-    new_customer_id = max_customer_id() + 1
-    new_customer = {'customer_id': new_customer_id,
-                    'customer_name': data['customer_name'],
-                    'mobile_number': mobile_number}
-    Customers.append(new_customer)
+        return api_utils.error("There already is a customer with \
+                 mobile number {} found".format(data['mobile_number']), 404)
+
+    new_customer = db_helper.add_new_customer(data['customer_name'],
+                                              mobile_number)
+
     return jsonify({'new_customer': new_customer})
 
 

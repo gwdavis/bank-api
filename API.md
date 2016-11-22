@@ -33,11 +33,10 @@
   
   * **Code:** 201 CREATED <br />
     **Content:** `{
-                  "account_id": 5,
                   "account_number": "48739779",
                   "active": true,
                   "balance": 1000,
-                  "customer": "Gordon Baird",
+                  "customer_name": "Gordon Baird",
                   "customer_id": 3,
                   "type": "dda"
                   }`
@@ -55,20 +54,18 @@
     **Content:** `{
   "accounts": [
     {
-      "account_id": 1,
       "account_number": "12345678",
       "active": true,
       "balance": 97000,
-      "customer": "treasury",
+      "customer_name": "treasury",
       "customer_id": 1,
       "type": "dda"
     },
     {
-      "account_id": 2,
       "account_number": "48739278",
       "active": true,
       "balance": 1000,
-      "customer": "Gary Davis",
+      "customer_name": "Gary Davis",
       "customer_id": 2,
       "type": "dda"
     }]`
@@ -168,7 +165,7 @@
 
 * **URL**
 
-  `/transacttions`
+  `/transactions`
 
 * **Method:**
 
@@ -189,8 +186,8 @@
   `{
     "amount": "100",
     "reference": "Settlement of accounts",
-    "originator": "48739278",
-    "beneficiary": "48739777"
+    "originator": 48739278,
+    "beneficiary": 48739777
 }`  
 
 * **Success Response:**  
@@ -205,6 +202,44 @@
     "originator": "48739278",
     "beneficiary": "48739777"
 }' "http://bank-api-stage.herokuapp.com/api/transactions"```  
+
+* **Notes:**
+
+  None
+
+  **Events**
+----
+  Returns JSON or all events.
+
+* **URL**
+
+  `/events`
+
+* **Method:**
+
+   `GET` 
+  
+*  **URL Params**
+
+   **Required:**
+ 
+   None
+
+   **Optional:**
+ 
+   None
+
+* **Data Params**
+
+    None
+
+* **Success Response:**  
+
+* **Error Response:**
+
+* **Sample Call:**  
+
+  ```curl -X GET -H "Cache-Control: no-cache" -H "Postman-Token: 45035b0b-cdcc-4769-bf43-d301e1efe9aa" "http://localhost:5000/api/events"```  
 
 * **Notes:**
 
