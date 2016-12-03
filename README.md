@@ -187,3 +187,17 @@ See api.md for documention on the api endpoints.  Calling API's using HTTP from 
 
 Working with SQLite manager and Postman was helpful in the conversion from arrays and dictionaries to SQLite. Initially I used Postman to make HTML GET and POST requests but found it to be very useful to set up simple semi-automated tests for each of the endpoints.  A copy of the requests and tests is included in git (bank-api local host.postman_collection.json).  I am not sure if it easily transferable but even reading the json will give you a bit of an idea of how it was setup.
 
+### Some GIT notes to myself
+
+```
+git init
+git add index.txt
+git add .
+git status
+git commit -m 'some message'
+git log
+git commit --amend
+git reset --soft "HEAD^"
+git commit --amend -m 'Commit v0.0.2 - add SQLite'
+```
+

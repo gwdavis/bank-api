@@ -8,7 +8,7 @@ from datetime import datetime
 #########################################################################
 # Source: http://sebastianraschka.com/Articles/2014_sqlite_in_python_tutorial.html
 
-sqlite_file = '/Users/garydavis/baird_sites/bank-api/bankapi_db.sqlite'
+sqlite_file = 'bankapi_db.sqlite'
 
 
 # Connecting to the database file
