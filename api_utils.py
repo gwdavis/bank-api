@@ -1,11 +1,10 @@
-#!flask/bin/python
 from flask import jsonify
 from db_helper import add_new_event, add_new_balance, add_new_transaction, \
      get_account, update_account_balance
-from app import parms, defaults
 import time
 from math import exp
 import datetime
+import params
 
 
 def get_data(request):
@@ -150,7 +149,7 @@ def adjusted_balance(account_number):
 # Interest rate functions
 ##########################################################################
 
-def calc_pmt(principal, start, end, rate, closeofbiz='23:59:59'):
+def calc_pmt(principal, start, end, rate, closeofbiz):
     """
     Returns interest earned on principal between start and end.
     Compounding defaults to continuous but can be set in Parms
@@ -161,10 +160,10 @@ def calc_pmt(principal, start, end, rate, closeofbiz='23:59:59'):
     rate:       annual daily compound rate
     closeofbiz: optional string format '20:00:00'
     """
-    if 'close_of_biz' in parms.__dict__:
-        closeofbiz = parms.close_of_biz
+    if 'close_of_biz' in params.parms.__dict__:
+        closeofbiz = params.parms.close_of_biz
     else:
-        closeofbiz = defaults.close_of_biz
+        closeofbiz = params.defaults.close_of_biz
 
     def compound_daily(principal, start, end, rate, closeofbiz):
         end = effective_date(end, closeofbiz)
@@ -175,11 +174,11 @@ def calc_pmt(principal, start, end, rate, closeofbiz='23:59:59'):
         return principal * (1-exp(rate*(end-start)/(365*24*60*60)))
 
     # check compounding method
-    if 'compound' in parms.__dict__:
-        if parms.compound == 'c':
+    if 'compound' in params.parms.__dict__:
+        if params.parms.compound == 'c':
             pmt = compound_continuous(principal, start, end, rate, closeofbiz)
             return pmt
-        elif parms.compound == 'd':
+        elif params.parms.compound == 'd':
             pmt = compound_daily(principal, start, end, rate, closeofbiz)
             return pmt
         else:
@@ -189,7 +188,7 @@ def calc_pmt(principal, start, end, rate, closeofbiz='23:59:59'):
     return -1
 
 
-def calc_pv(principal, start, end, rate, closeofbiz='23:59:59'):
+def calc_pv(principal, start, end, rate, closeofbiz):
     """
     Returns PV of principal between start and end.
     Compounding defaults to continuous but can be set in Parms
@@ -200,10 +199,10 @@ def calc_pv(principal, start, end, rate, closeofbiz='23:59:59'):
     rate:       annual daily compound rate
     closeofbiz: optional string format '20:00:00'
     """
-    if 'close_of_biz' in parms.__dict__:
-        closeofbiz = parms.close_of_biz
+    if 'close_of_biz' in params.parms.__dict__:
+        closeofbiz = params.parms.close_of_biz
     else:
-        closeofbiz = defaults.close_of_biz
+        closeofbiz = params.defaults.close_of_biz
 
     def compound_daily(principal, start, end, rate, closeofbiz):
         end = effective_date(end, closeofbiz)
@@ -214,11 +213,11 @@ def calc_pv(principal, start, end, rate, closeofbiz='23:59:59'):
         return principal * exp(rate*(end-start)/(365*24*60*60))
 
     # check compounding method
-    if 'compound' in parms.__dict__:
-        if 'c' in parms.compound:
+    if 'compound' in params.parms.__dict__:
+        if 'c' in params.parms.compound:
             PV = compound_continuous(principal, start, end, rate, closeofbiz)
             return PV
-        elif 'd' in parms.compound:
+        elif 'd' in params.parms.compound:
             PV = compound_daily(principal, start, end, rate, closeofbiz)
             return PV
         else:

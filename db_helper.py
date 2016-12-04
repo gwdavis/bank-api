@@ -1,4 +1,3 @@
-#!flask/bin/python
 import sqlite3
 from datetime import datetime
 
@@ -175,7 +174,6 @@ def get_account(account_number):
         return dict(c.fetchone())
     except:
         return None
-
 
 
 def get_all_accounts():

@@ -4,6 +4,7 @@ from flask import Flask, jsonify, request
 import api_utils
 import db_helper
 
+
 """
     Bank API Backend
     ----------------
@@ -31,20 +32,6 @@ app = Flask(__name__)
 
 # Set defaults and parameters
 
-# NOTE:  Could not figure out how to move the function to api_utils without
-# a circular reference that resulted in the function not being found
-
-def set_variables(dt, dc):
-    """Return an object with variable names and values in dict format.
-    Arg is db table name and column name where the variables are stored
-    in in single cell of db """
-    class Bunch(object):
-        def __init__(self, x):
-            self.__dict__.update(x)      
-    return Bunch(db_helper.get_variables(dt, dc))
-
-parms = set_variables('parms', 'var_json')
-defaults = set_variables('defaults', 'var_json')
 
 ###########################################################################
 # api_info

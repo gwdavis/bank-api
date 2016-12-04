@@ -13,7 +13,9 @@ Version 0.0.2 uses SQLite for the database as opposed to arrays and Dictionaries
 *Original template from which this was derived* https://github.com/afh/yabab  
 *Heroku Tutorial:* http://readwrite.com/2014/09/23/heroku-for-beginners-app-hosting-101/  
 *Heroku:* https://dashboard.heroku.com/apps/prod-bank-api/deploy/heroku-git  
-*API Documentation:*  https://bocoup.com/weblog/documenting-your-api  
+*API Documentation:*  https://bocoup.com/weblog/documenting-your-api
+*SQLite:* https://docs.python.org/3.5/library/sqlite3.html
+*SQLite & Python:* http://sebastianraschka.com/Articles/2014_sqlite_in_python_tutorial.html
   
 
 *not bad reference but no directly used:*  
@@ -201,3 +203,17 @@ git reset --soft "HEAD^"
 git commit --amend -m 'Commit v0.0.2 - add SQLite'
 ```
 
+create and open new branch
+```
+git checkout -b feature-name
+
+```
+merge the branch into master
+```
+git checkout master
+git merge feature-name
+```
+delete the branch
+```
+get branch-d feature-name
+```
