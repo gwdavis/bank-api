@@ -4,7 +4,7 @@ import account
 import db_helper
 import fincalc
 import time
-import params
+import settings
 
 
 def make_payment(data):
@@ -112,7 +112,7 @@ def adjusted_balance(account_number):
         balance = fincalc.calc_pv(account['balance'],
                                   account['last_event_time'],
                                   time.time(),
-                                  params.parms.savings_rate)
+                                  settings.savings_rate)
         return balance
 
     return account['balance']

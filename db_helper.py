@@ -224,13 +224,17 @@ def update_account_balance(account_number, balance,
     a.update({'balance': balance,
               'latest_event_id': latest_event_id,
               'latest_event_timestamp': latest_event_timestamp})
+    conn.commit()
     return
 
 
-def get_variables(table, column):
-    """Return variables from column in table as dict."""
-    c.execute("""SELECT {dc} FROM {dt};
-        """.format(dt=table, dc=column))
-    v = dict(c.fetchone())[column]
-    # return p as a dict
-    return eval(v)
+# def get_variables(table, column):
+#     """Return variables from column in table as dict."""
+#     c.execute("""SELECT {dc} FROM {dt};
+#         """.format(dt=table, dc=column))
+#     v = dict(c.fetchone())[column]
+#     # return p as a dict
+#     return eval(v)
+
+
+

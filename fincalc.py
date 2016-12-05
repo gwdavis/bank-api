@@ -1,4 +1,4 @@
-import params
+import settings
 import datetime
 from math import exp
 
@@ -18,10 +18,8 @@ def calc_pmt(principal, start, end, rate, closeofbiz):
     rate:       annual daily compound rate
     closeofbiz: optional string format '20:00:00'
     """
-    if 'close_of_biz' in params.parms.__dict__:
-        closeofbiz = params.parms.close_of_biz
-    else:
-        closeofbiz = params.defaults.close_of_biz
+
+    closeofbiz = settings.close_of_biz
 
     def compound_daily(principal, start, end, rate, closeofbiz):
         end = effective_date(end, closeofbiz)
@@ -32,16 +30,15 @@ def calc_pmt(principal, start, end, rate, closeofbiz):
         return principal * (1-exp(rate*(end-start)/(365*24*60*60)))
 
     # check compounding method
-    if 'compound' in params.parms.__dict__:
-        if params.parms.compound == 'c':
-            pmt = compound_continuous(principal, start, end, rate, closeofbiz)
-            return pmt
-        elif params.parms.compound == 'd':
-            pmt = compound_daily(principal, start, end, rate, closeofbiz)
-            return pmt
-        else:
-            print("Invalid compounding parameter in Parms.compound")
-            return -1
+    if settings.compound_int_type == 'continuous':
+        pmt = compound_continuous(principal, start, end, rate, closeofbiz)
+        return pmt
+    elif settings.compound_int_type == 'daily':
+        pmt = compound_daily(principal, start, end, rate, closeofbiz)
+        return pmt
+    else:
+        print("Invalid compounding parameter in Parms.compound")
+        return -1
     print("compound term not in parameters or defaults")
     return -1
 
@@ -57,10 +54,8 @@ def calc_pv(principal, start, end, rate, closeofbiz):
     rate:       annual daily compound rate
     closeofbiz: optional string format '20:00:00'
     """
-    if 'close_of_biz' in params.parms.__dict__:
-        closeofbiz = params.parms.close_of_biz
-    else:
-        closeofbiz = params.defaults.close_of_biz
+
+    closeofbiz = settings.close_of_biz
 
     def compound_daily(principal, start, end, rate, closeofbiz):
         end = effective_date(end, closeofbiz)
@@ -71,16 +66,15 @@ def calc_pv(principal, start, end, rate, closeofbiz):
         return principal * exp(rate*(end-start)/(365*24*60*60))
 
     # check compounding method
-    if 'compound' in params.parms.__dict__:
-        if 'c' in params.parms.compound:
-            PV = compound_continuous(principal, start, end, rate, closeofbiz)
-            return PV
-        elif 'd' in params.parms.compound:
-            PV = compound_daily(principal, start, end, rate, closeofbiz)
-            return PV
-        else:
-            print("Invalid compounding parameter in Parms.compound")
-            return -1
+    if settings.compound_int_type == 'continuous':
+        PV = compound_continuous(principal, start, end, rate, closeofbiz)
+        return PV
+    elif settings.compound_int_type == 'daily':
+        PV = compound_daily(principal, start, end, rate, closeofbiz)
+        return PV
+    else:
+        print("Invalid compounding parameter in Parms.compound")
+        return -1
     print("compound term not in parameters or defaults")
     return -1
 
@@ -96,7 +90,7 @@ def close_of_business(timestamp, closeofbiz):
     for a given time of close
     """
     date_of_event = datetime.date.fromtimestamp(timestamp)
-    date_time_close = datetime.datetime.strptime(str(date_of_event) + " " + closeofbiz, '%Y-%m-%d %H:%M:%S')
+    date_time_close = datetime.datetime.strptime(str(date_of_event) + " " + settings.close_of_biz, '%Y-%m-%d %H:%M:%S')
     return date_time_close
 
 

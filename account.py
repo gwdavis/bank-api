@@ -2,7 +2,7 @@ from flask import jsonify
 import time
 import api_utils
 import db_helper
-import params
+import settings
 import transaction
 
 
@@ -47,7 +47,7 @@ def create_account(data):
     beneficiary = db_helper.get_account(new_account['account_number'])
     originator = db_helper.get_account(12345678)
 
-    committed_transaction = transaction.commit_transaction(
+    committed_transaction = transaction.commit_transfer(
         originator=originator,
         beneficiary=beneficiary,
         reference="Initial Deposit",
@@ -72,7 +72,7 @@ def show_adjusted_balance(account_number):
         balance = api_utils.calc_pv(account['balance'],
                                     account['last_event_time'],
                                     time.time(),
-                                    params.parms.savings_rate)
+                                    settings.savings_rate)
         return jsonify({"balance": balance})
 
     return jsonify({"balance": account['balance']})
