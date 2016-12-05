@@ -6,7 +6,6 @@ import api_utils
 def list_customers():
     """List of all customers and customer_id"""
     customers = db_helper.get_all_customers()
-
     return jsonify({"customers": customers})
 
 
@@ -33,5 +32,5 @@ def create_customer(data):
 
     new_customer = db_helper.add_new_customer(data['customer_name'],
                                               mobile_number)
-
     return jsonify({'new_customer': new_customer})
+    

@@ -9,8 +9,6 @@ import params
 
 def make_payment(data):
     """Create a new payment transaction.
-    For every request to this API endpoint two Transaction database entries
-    are made in order to have some sort of double entry bookkeeping.
     """
     mandatory_params = ['amount', 'reference', 'originator', 'beneficiary']
     result = api_utils.check_required_params(mandatory_params, data)
@@ -29,13 +27,13 @@ def make_payment(data):
     if reject:
         return reject
 
-    committed_transaction = commit_transaction(
+    committed_payment = commit_transfer(
         originator=originator,
         beneficiary=beneficiary,
         reference=data['reference'],
         amount=amount)
 
-    return jsonify({"transaction": committed_transaction}), 201
+    return jsonify({"transaction": committed_payment}), 201
 
 
 def list_transactions():
@@ -43,11 +41,11 @@ def list_transactions():
     return None
 
 
-def commit_transaction(originator, beneficiary, reference, amount):
-    """Commits a transaction to the database and returns the transaction id.
-    Requires originator and benficiary account objects, a reference note as
-    text and an amount as a decimal.  Adds transaction log and updates running
-    balances for each account."""
+def commit_transfer(originator, beneficiary, reference, amount):
+    """Commits a transer between accounts to the database and returns the
+    transaction id. Requires originator and benficiary account objects, a
+    reference note as text and an amount as a decimal.  Adds transaction
+    log and updates running balances for each account."""
 
     # NOTE: For daily compounding, accrued account balances assume interest is
     # credited to the account on the event date when in reality the accured
