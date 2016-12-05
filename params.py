@@ -7,7 +7,7 @@ def variables(dt, dc):
     in in single cell of db """
     class Bunch(object):
         def __init__(self, x):
-            self.__dict__.update(x)      
+            self.__dict__.update(x)
     return Bunch(db_helper.get_variables(dt, dc))
 
 parms = variables('parms', 'var_json')

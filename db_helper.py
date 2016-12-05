@@ -218,7 +218,8 @@ def get_all_events():
     return events
 
 
-def update_account_balance(account_number, balance, latest_event_id, latest_event_timestamp):
+def update_account_balance(account_number, balance,
+                           latest_event_id, latest_event_timestamp):
     a = get_account(account_number)
     a.update({'balance': balance,
               'latest_event_id': latest_event_id,
