@@ -110,7 +110,6 @@ def customer_true(customer_id):
 
     # customer = json.dumps(dict(c.fetchone()))
     customer = dict(c.fetchone())
-    print("from function: ", customer)
     return customer
 
 
@@ -152,7 +151,6 @@ def add_new_customer(customer_name, mobile_number):
 
 def add_new_transaction(transaction):
     """Add new transaction to database"""
-    print(transaction)
     c.execute("""
         INSERT INTO transactions (event_id, originator, beneficiary, amount, reference)
         VALUES ({ei}, {orig}, {be}, {am}, '{re}');
@@ -221,9 +219,12 @@ def get_all_events():
 def update_account_balance(account_number, balance,
                            latest_event_id, latest_event_timestamp):
     a = get_account(account_number)
+
     a.update({'balance': balance,
               'latest_event_id': latest_event_id,
               'latest_event_timestamp': latest_event_timestamp})
+    c.execute("""UPDATE accounts SET balance = {bl}, last_event_id = "{lei}", last_event_time = "{lets}" WHERE account_number = {an};""".format(bl=balance, lei=latest_event_id, lets=latest_event_timestamp, an=account_number))
+
     conn.commit()
     return
 
@@ -235,6 +236,4 @@ def update_account_balance(account_number, balance,
 #     v = dict(c.fetchone())[column]
 #     # return p as a dict
 #     return eval(v)
-
-
 

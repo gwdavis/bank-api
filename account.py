@@ -53,8 +53,10 @@ def create_account(data):
         reference="Initial Deposit",
         amount=initial_deposit)
 
+    account_summary = db_helper.get_account(new_account['account_number'])
+
     return jsonify({"transaction id": committed_transaction,
-                    "new account": new_account}), 201
+                    "new account": account_summary}), 201
 
 
 def list_accounts():
