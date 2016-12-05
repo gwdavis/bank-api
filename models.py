@@ -41,30 +41,35 @@ Transactions = {
         'reference': "TEXT NOT NULL"  # string
     }
 
-Parms = {
-        'var_id': "INTEGER PRIMARY KEY AUTOINCREMENT",
-        'var_json': "TEXT NOT NULL"
+Settings = {
+        'id': "INTEGER PRIMARY KEY AUTOINCREMENT",
+        'savings_rate': "REAL NOT NULL",
+        'close_of_biz': "TEXT NOT NULL",
+        'compound_int_type': "TEXT NOT NULL"
     }
 
-Defaults = {
-        'var_id': "INTEGER PRIMARY KEY AUTOINCREMENT",
-        'var_json': "TEXT NOT NULL"
-    }
+# To Do - refactor settings module
+# Defaults = {
+#         'id': "INTEGER PRIMARY KEY AUTOINCREMENT",
+#         'savings_rate': "REAL NOT NULL",
+#         'close_of_biz': "TEXT NOT NULL",
+#         'compound_int_type': "TEXT NOT NULL"
+#     }
 
 ########################################################################
 # Data
 ########################################################################
 
+# To Do - refactor settings module
+# defaults = {
+#         'close_of_biz': '24:59:59',
+#         'compound_int_type': 'continuous'
+#     }
 
-defaults = {
-        'close_of_biz': '24:59:59',
-        'compound': 'c'
-    }
-
-parms = {'savings_rate': 0.0125,
-         'close_of_biz': '20:00:00',
-         'compound': 'c'
-         }
+# settings = {'savings_rate': 0.0125,
+#             'close_of_biz': '20:00:00',
+#             'compounding_int_type': 'continuous'
+#             }
 
 accounts = [
     {

@@ -1,7 +1,7 @@
 #!flask/bin/python
 # import sqlite3
 from db_helper import *
-from models import Accounts, accounts, Balances, Customers, customers, Events, Transactions, Parms, parms, Defaults, defaults
+from models import *
 
 
 ########################################################################
@@ -32,12 +32,13 @@ def main():
         clean_row.update({"initial_deposit": 0})
         add_new_account(**clean_row)
 
-    # Add parameters from parms
-    c.execute("""INSERT INTO parms (var_json) VALUES ("{v}")
-            """.format(v=parms))
-    # Add defaults from defaults
-    c.execute("""INSERT INTO defaults (var_json) VALUES ("{v}")
-            """.format(v=defaults))
+    # To Do = Refactor settings table to use these tables
+    # c.execute("""INSERT INTO defaults (savings_rate, close_of_biz, compound_int_type)
+    #     VALUES ({sr}, "{cb}", "{cit}")""".format(sr=10.0, cb='24:59:59', cit='continuous'))
+    # # Add to settings - hard code
+    # c.execute("""INSERT INTO settings (savings_rate, close_of_biz,
+    #     compound_int_type) VALUES ({sr}, "{cb}", "{cit}")
+    #         """.format(sr=0.0125, cb='19:59:59', cit='continuous'))
 
     conn.commit()
     conn.close()
@@ -69,8 +70,9 @@ def create_bank_api_tables():
     make_table('customers', Customers)
     make_table('events', Events)
     make_table('transactions', Transactions)
-    make_table('parms', Parms)
-    make_table('defaults', Defaults)
+    # To Do - Refactor settings module to use these tables
+    # make_table('settings', Settings)
+    # make_table('defaults', Defaults)
     return
 
 

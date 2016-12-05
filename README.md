@@ -1,4 +1,4 @@
-# bank-api v0.0.2
+# bank-api v0.0.3
 ***Attempt at setting up some simple bank account api's***
 
 Can be accessed on Heroku here:  https://bank-api-prod.herokuapp.com/api
