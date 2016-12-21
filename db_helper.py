@@ -5,7 +5,8 @@ from datetime import datetime
 #########################################################################
 # Set up Database
 #########################################################################
-# Source: http://sebastianraschka.com/Articles/2014_sqlite_in_python_tutorial.html
+# Source:
+# http://sebastianraschka.com/Articles/2014_sqlite_in_python_tutorial.html
 
 sqlite_file = 'bankapi_db.sqlite'
 
@@ -54,8 +55,8 @@ def add_new_account(initial_deposit, customer_id, account_type):
         INSERT INTO accounts (customer_id, account_type, last_event_id,
                               last_event_time, balance, active)
         VALUES ({ci}, "{t}", {lei}, "{let}", {b}, {a});""".format(
-            ci=customer_id, t=account_type, lei=new_event['event_id'],
-            let=new_event['timestamp'], b=0, a=1))
+                ci=customer_id, t=account_type, lei=new_event['event_id'],
+                let=new_event['timestamp'], b=0, a=1))
     new_account = {
         'customer_id': customer_id,
         # 'customer_name': customer_name,
@@ -65,7 +66,7 @@ def add_new_account(initial_deposit, customer_id, account_type):
         'last_event_time': new_event['timestamp'],
         'balance': 0,
         'active': 1
-        }
+    }
     conn.commit()
     return new_account
 
@@ -81,7 +82,7 @@ def add_new_event(event_type):
         "event_id": c.lastrowid,
         "timestamp": ts,
         "event_type": event_type
-        }
+    }
     conn.commit()
     return new_event
 
@@ -94,7 +95,9 @@ def add_new_balance(event_id, balance_amount, account_number):
             """
     c.execute("""
         INSERT INTO balances (event_id, balance, account_number)
-        VALUES ({ei}, {ba}, {an});""".format(ei=event_id, ba=balance_amount, an=account_number)) 
+        VALUES ({ei}, {ba}, {an});""".format(ei=event_id,
+                                             ba=balance_amount,
+                                             an=account_number))
     # balance = {"event_id": event_id,
     #            "balance": balance_amount,
     #            "account_number": account_number}
@@ -152,7 +155,8 @@ def add_new_customer(customer_name, mobile_number):
 def add_new_transaction(transaction):
     """Add new transaction to database"""
     c.execute("""
-        INSERT INTO transactions (event_id, originator, beneficiary, amount, reference)
+        INSERT INTO transactions (event_id, originator, beneficiary,
+                                  amount, reference)
         VALUES ({ei}, {orig}, {be}, {am}, '{re}');
         """.format(ei=transaction['event_id'],
                    orig=transaction['originator'],
@@ -223,7 +227,14 @@ def update_account_balance(account_number, balance,
     a.update({'balance': balance,
               'latest_event_id': latest_event_id,
               'latest_event_timestamp': latest_event_timestamp})
-    c.execute("""UPDATE accounts SET balance = {bl}, last_event_id = "{lei}", last_event_time = "{lets}" WHERE account_number = {an};""".format(bl=balance, lei=latest_event_id, lets=latest_event_timestamp, an=account_number))
+    c.execute("""
+        UPDATE accounts 
+        SET balance = {bl},
+        last_event_id = "{lei}", last_event_time = "{lets}"
+        WHERE account_number = {an};""".format(bl=balance,
+                                               lei=latest_event_id,
+                                               lets=latest_event_timestamp,
+                                               an=account_number))
 
     conn.commit()
     return
@@ -236,4 +247,3 @@ def update_account_balance(account_number, balance,
 #     v = dict(c.fetchone())[column]
 #     # return p as a dict
 #     return eval(v)
-
