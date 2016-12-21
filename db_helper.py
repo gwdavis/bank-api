@@ -227,6 +227,7 @@ def update_account_balance(account_number, balance,
     a.update({'balance': balance,
               'latest_event_id': latest_event_id,
               'latest_event_timestamp': latest_event_timestamp})
+
     c.execute("""
         UPDATE accounts 
         SET balance = {bl},
@@ -247,3 +248,4 @@ def update_account_balance(account_number, balance,
 #     v = dict(c.fetchone())[column]
 #     # return p as a dict
 #     return eval(v)
+
