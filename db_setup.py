@@ -11,7 +11,8 @@ from models import *
 def main():
 
     # Note: There is a lot of customization in create_bank_api_tables
-    create_bank_api_tables()
+    with open('schema.sql', mode='r') as f:
+        c.executescript(f.read())
 
     # Add customers from models
     for row in customers:
@@ -48,32 +49,32 @@ def main():
 #  Functions
 ##########################################################################
 
-def create_bank_api_tables():
-    """Creates table from models.py """
-    def make_table(table_name, source):
-        """Create tables from models.py """
-        fields = ""
-        for fn in source:
-            f = '{fn} {fe},'.format(fn=fn, fe=source[fn])
-            fields += f
-        if fields[-1:] == ',':
-            fields = fields[:-1]
-        try:
-            c.execute('DROP TABLE {tn};'.format(tn=table_name))
-        except:
-            pass
-        # print('CREATE TABLE {tn} ({f})'.format(tn=table_name, f=fields))
-        c.execute('CREATE TABLE {tn} ({f});'.format(tn=table_name, f=fields))
+# def create_bank_api_tables():
+#     """Creates table from models.py """
+#     def make_table(table_name, source):
+#         """Create tables from models.py """
+#         fields = ""
+#         for fn in source:
+#             f = '{fn} {fe},'.format(fn=fn, fe=source[fn])
+#             fields += f
+#         if fields[-1:] == ',':
+#             fields = fields[:-1]
+#         try:
+#             c.execute('DROP TABLE {tn};'.format(tn=table_name))
+#         except:
+#             pass
+#         # print('CREATE TABLE {tn} ({f})'.format(tn=table_name, f=fields))
+#         c.execute('CREATE TABLE {tn} ({f});'.format(tn=table_name, f=fields))
 
-    make_table('accounts', Accounts)
-    make_table('balances', Balances)
-    make_table('customers', Customers)
-    make_table('events', Events)
-    make_table('transactions', Transactions)
-    # To Do - Refactor settings module to use these tables
-    # make_table('settings', Settings)
-    # make_table('defaults', Defaults)
-    return
+#     make_table('accounts', Accounts)
+#     make_table('balances', Balances)
+#     make_table('customers', Customers)
+#     make_table('events', Events)
+#     make_table('transactions', Transactions)
+#     make_table('settings', Settings)
+#     # To Do - Refactor settings module to use these tables
+#     # make_table('defaults', Defaults)
+#     return
 
 
 def removekey(d, key):
