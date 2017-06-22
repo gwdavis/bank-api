@@ -1,7 +1,7 @@
 # bank-api v0.0.3
 ***Attempt at setting up some simple bank account api's***
 
-Can be accessed on Heroku here:  https://bank-api-prod.herokuapp.com/api
+Can be accessed on Heroku here:  http://stage-bank-api.herokuapp.com/api
 
 Version 0.0.2 uses SQLite for the database as opposed to arrays and Dictionaries used in version 0.0.2.  The term "NOTE:"" is used in the code to indicate some outstanding questions.  Not really sure about the scope of variables used here.  In coding, it appeared that all variables might be global.  
 
